@@ -85,7 +85,22 @@ class MessagesPage extends StatelessWidget {
                 backgroundImage: AssetImage(userPhotoUrl),
               ),
             ),
-            SizedBox(width: 16),
+            SizedBox(width: 8),
+            Container(
+              margin: EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey[200],
+                border: Border.all(color: Colors.black, width: 0.5),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.add, color: Colors.black, size: 20),
+                onPressed: () {
+                  // Adicione aqui a ação desejada para o botão de adicionar
+                },
+                padding: EdgeInsets.all(8),
+              ),
+            ), // Added missing closing parenthesis here
           ],
         ),
       ),
@@ -200,156 +215,56 @@ class MessagesPage extends StatelessWidget {
           ),
           // Lista de Conversas
           Expanded(
-            child: ListView.builder(
+            child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: messages.length,
+              separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey[300]),
               itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6.0),
-                  color: Colors.white, // Fundo branco para a mensagem
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 24, // Aumenta o tamanho do ícone do usuário
-                      backgroundImage: AssetImage('assets/icons/user.png'),
-                    ),
-                    title: Text(
-                      messages[index]['sender'] ?? 'Desconhecido', // Verificação de null
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    subtitle: Text(
-                      messages[index]['message'] ?? '', // Verificação de null
-                      style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          messages[index]['time'] ?? '', // Verificação de null
-                          style: TextStyle(fontSize: 10, color: Colors.black),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
-                            friendName: messages[index]['sender']!,
-                            friendPhotoUrl: 'https://via.placeholder.com/150', // Placeholder para foto do amigo
-                            isOnline: true, // Supondo que o amigo está online
-                          ),
-                        ),
-                      );
-                    },
+                return ListTile(
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                  leading: CircleAvatar(
+                    radius: 24,
+                    backgroundImage: AssetImage('assets/icons/user.png'),
                   ),
+                  title: Text(
+                    messages[index]['sender'] ?? 'Desconhecido',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  subtitle: Text(
+                    messages[index]['message'] ?? '',
+                    style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        messages[index]['time'] ?? '',
+                        style: TextStyle(fontSize: 10, color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                          friendName: messages[index]['sender']!,
+                          friendPhotoUrl: 'https://via.placeholder.com/150',
+                          isOnline: true,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Lógica para abrir a lista de amigos
-        },
-        backgroundColor: Colors.grey[200], // Nearly white background
-        child: const Icon(Icons.add, size: 30, color: Colors.black), // Black "+" icon
-        elevation: 6.0, // Adiciona uma sombra ao botão
-      ), // <-- Ensure this parenthesis is correctly placed
-    );
-  }
-}
-
-// Página de mensagem secundária (exemplo)
-class ChatSecundarioPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat Secundário'),
-      ),
-      body: Center(
-        child: Text('Conteúdo do Chat Secundário'),
-      ),
-    );
-  }
-}
-
-// Página de notas (exemplo)
-class NotasPage extends StatefulWidget {
-  @override
-  _NotasPageState createState() => _NotasPageState();
-}
-
-class _NotasPageState extends State<NotasPage> {
-  final TextEditingController _todoController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
-  final List<Map<String, String>> _items = [];
-
-  void _addItem() {
-    final String todo = _todoController.text;
-    final String note = _noteController.text;
-
-    if (todo.isNotEmpty || note.isNotEmpty) {
-      setState(() {
-        _items.add({'todo': todo, 'note': note});
-      });
-      _todoController.clear();
-      _noteController.clear();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Notas'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _todoController,
-              decoration: InputDecoration(
-                labelText: 'To-Do',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: _noteController,
-              decoration: InputDecoration(
-                labelText: 'Nota',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _addItem,
-              child: Text('Adicionar'),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 5),
-                    child: ListTile(
-                      title: Text(_items[index]['todo'] ?? ''),
-                      subtitle: Text(_items[index]['note'] ?? ''),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      // Removido o FloatingActionButton
     );
   }
 }
