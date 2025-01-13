@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "513721203811",
+    "firebase_url": "https://blaeysuperapp-default-rtdb.firebaseio.com",
+    "project_id": "blaeysuperapp",
+    "storage_bucket": "blaeysuperapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513721203811:android:51cf6ef6c5701a6af20c56",
+        "android_client_info": {
+          "package_name": "com.company.blaey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513721203811-i0674rrnqeak7e5l3rmq6g5qpp86dbn7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.blaey",
+            "certificate_hash": "3cc824d01eb34708e6ba1b7a59401c82751319c1"
+          }
+        },
+        {
+          "client_id": "513721203811-4n9pgs2mmb5k9hjc46rltsld3602np8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkXIWvRMaSG6-b8qcpaFIcrvr4SRHba80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513721203811-4n9pgs2mmb5k9hjc46rltsld3602np8d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "513721203811-v9k1n0vdb0e5spie9apeu34vkp5mbkb8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.company.blaey"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
