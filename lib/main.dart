@@ -11,9 +11,8 @@ import 'pages/chat/messages_page.dart';
 import 'pages/fun_page.dart';
 import 'pages/wallet_page.dart';
 import 'pages/notifications_page.dart';
-
-// Remove this line if it exists:
-// import 'pages/home_page.dart';
+// Import your actual networking page
+import 'pages/networking_page.dart'; // Ensure this is the correct path
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,9 +60,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   int _currentIndex = 1; // Start on the FunPage
 
   final List<Widget> _pages = [
-    MessagesPage(), // Moved MessagesPage to the first position
+    MessagesPage(),
     FunPage(userBalance: 0.0),
-    NetworkingPage(),
+    NetworkingPage(), // Use the actual networking page here
     WalletPage(),
     NotificationsPage(),
   ];
@@ -72,12 +71,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: _pages[_currentIndex], // This should display the correct page based on _currentIndex
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            _currentIndex = index; // Update the index to switch pages
           });
         },
         type: BottomNavigationBarType.fixed,
@@ -86,20 +85,20 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         iconSize: 24,
         selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
         unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-        selectedItemColor: Colors.black, // Black text for selected item
+        selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
             icon: Container(
               decoration: BoxDecoration(
-                color: _currentIndex == 0 ? Colors.green.withOpacity(0.3) : Colors.transparent, // More transparent green
+                color: _currentIndex == 0 ? Colors.green.withAlpha(77) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
-              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4), // Wider margin for the icon
+              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               padding: EdgeInsets.all(4),
               child: Icon(
                 Icons.message,
-                color: _currentIndex == 0 ? Colors.black : Colors.grey, // Black icon for selected
+                color: _currentIndex == 0 ? Colors.black : Colors.grey,
               ),
             ),
             label: 'Conversas',
@@ -107,10 +106,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           BottomNavigationBarItem(
             icon: Container(
               decoration: BoxDecoration(
-                color: _currentIndex == 1 ? Colors.green.withOpacity(0.3) : Colors.transparent,
+                color: _currentIndex == 1 ? Colors.green.withAlpha(77) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
-              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4), // Wider margin for the icon
+              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               padding: EdgeInsets.all(4),
               child: Icon(
                 Icons.videogame_asset_rounded,
@@ -122,7 +121,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           BottomNavigationBarItem(
             icon: Container(
               decoration: BoxDecoration(
-                color: _currentIndex == 2 ? Colors.green.withOpacity(0.3) : Colors.transparent,
+                color: _currentIndex == 2 ? Colors.green.withAlpha(77) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               margin: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -137,7 +136,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           BottomNavigationBarItem(
             icon: Container(
               decoration: BoxDecoration(
-                color: _currentIndex == 3 ? Colors.green.withOpacity(0.3) : Colors.transparent,
+                color: _currentIndex == 3 ? Colors.green.withAlpha(77) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -152,7 +151,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           BottomNavigationBarItem(
             icon: Container(
               decoration: BoxDecoration(
-                color: _currentIndex == 4 ? Colors.green.withOpacity(0.3) : Colors.transparent,
+                color: _currentIndex == 4 ? Colors.green.withAlpha(77) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -165,19 +164,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             label: 'Notificações',
           ),
         ],
-      )
+      ),
     );
   }
 
   @override
   bool get wantKeepAlive => true;
-}
-
-class NetworkingPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Networking Page'),
-    );
-  }
 }

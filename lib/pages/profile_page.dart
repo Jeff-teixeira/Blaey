@@ -70,6 +70,43 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Future<void> _showImagePickerOptions() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Escolher da Galeria'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                  setState(() {
+                    _image = pickedFile;
+                  });
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Tirar uma Foto'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+                  setState(() {
+                    _image = pickedFile;
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: _viewImage,
+                  onTap: _showImagePickerOptions, // Abre as opções de escolha de imagem
                   child: Stack(
                     alignment: Alignment.center,
                     children: [

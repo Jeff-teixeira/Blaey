@@ -22,6 +22,9 @@ class _FunPageState extends State<FunPage> {
   Timer? _timer;
   int _currentPage = 0;
 
+  // Lista para rastrear o estado de cada botão de desafio
+  List<bool> isChallenged = List.generate(5, (index) => false);
+
   @override
   void initState() {
     super.initState();
@@ -59,10 +62,8 @@ class _FunPageState extends State<FunPage> {
           children: [
             _buildAppBar(),
             SizedBox(height: 21.h),
-            _buildBannerCarousel(),
-            SizedBox(height: 15.h),
-            _buildPageIndicators(),
-            SizedBox(height: 15.h),
+            _buildBannerCarousel(), // Banner e indicadores juntos
+            SizedBox(height: 15.h), // Espaço abaixo dos indicadores
             _buildOnlineStatus(),
             SizedBox(height: 4.h),
             _buildUserCarousel(),
@@ -82,6 +83,8 @@ class _FunPageState extends State<FunPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Espaço à esquerda do ícone de pesquisa
+        SizedBox(width: 4.w), // Reduzir o espaço à esquerda
         InkWell(
           onTap: () {
             print("Ícone de pesquisa tocado");
@@ -92,6 +95,7 @@ class _FunPageState extends State<FunPage> {
             height: 30.h,
           ),
         ),
+        SizedBox(width: 4.w), // Espaço entre pesquisa e saldo
         Container(
           padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
           decoration: BoxDecoration(
@@ -106,12 +110,12 @@ class _FunPageState extends State<FunPage> {
                 width: 24.w,
                 height: 24.h,
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 20.w), // Reduzir o espaço entre ícone e texto
               Text(
                 '\$${widget.userBalance.toStringAsFixed(2)}',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
               ),
-              SizedBox(width: 9.w),
+              SizedBox(width: 20.w), // Reduzir o espaço entre texto e botão de adicionar
               InkWell(
                 onTap: () {
                   Navigator.push(
@@ -135,66 +139,81 @@ class _FunPageState extends State<FunPage> {
             ],
           ),
         ),
-        InkWell(
-          onTap: () {
-            print("Navegando para o ranking");
-          },
-          child: Icon(
-            Icons.bar_chart,
-            size: 30.sp,
-            color: Colors.black54,
-          ),
-        ),
-        InkWell(
-          onTap: () {
-            print("Navegando para a página de perfil");
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => profile.ProfilePage()),
-            );
-          },
-          child: CircleAvatar(
-            radius: 20.r,
-            backgroundColor: const Color(0xFFE7DFEC),
-            backgroundImage: AssetImage('assets/icons/perfil.png'),
-          ),
-        ),
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => TrophiesPage()),
-            );
-          },
-          child: Icon(
-            Icons.emoji_events,
-            size: 30.sp,
-            color: Colors.amber,
-          ),
+        Row(
+          children: [
+            InkWell(
+              onTap: () {
+                print("Navegando para o ranking");
+              },
+              child: Icon(
+                Icons.bar_chart,
+                size: 30.sp,
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(width: 8.w), // Reduzir o espaço entre os ícones
+            InkWell(
+              onTap: () {
+                print("Navegando para a página de perfil");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => profile.ProfilePage()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 20.r,
+                backgroundColor: const Color(0xFFE7DFEC),
+                backgroundImage: AssetImage('assets/icons/perfil.png'),
+              ),
+            ),
+            SizedBox(width: 10.w), // Reduzir o espaço entre os ícones
+            Padding(
+              padding: EdgeInsets.only(right: 2.w), // Mover o troféu um pouco para a esquerda
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TrophiesPage()),
+                  );
+                },
+                child: Icon(
+                  Icons.emoji_events,
+                  size: 30.sp,
+                  color: Colors.amber,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
   Widget _buildBannerCarousel() {
-    return Container(
-      height: 140.h,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(0.r),
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (int page) {
-            setState(() {
-              _currentPage = page;
-            });
-          },
-          children: [
-            Image.asset('assets/jogos/banner1.png', fit: BoxFit.cover),
-            Image.asset('assets/jogos/banner2.png', fit: BoxFit.cover),
-            Image.asset('assets/jogos/banner3.png', fit: BoxFit.cover),
-          ],
+    return Column(
+      children: [
+        Container(
+          height: 140.h,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(0.r),
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (int page) {
+                setState(() {
+                  _currentPage = page;
+                });
+              },
+              children: [
+                Image.asset('assets/jogos/banner1.png', fit: BoxFit.cover),
+                Image.asset('assets/jogos/banner2.png', fit: BoxFit.cover),
+                Image.asset('assets/jogos/banner3.png', fit: BoxFit.cover),
+              ],
+            ),
+          ),
         ),
-      ),
+        SizedBox(height: 5.h), // Reduzir o espaço entre o banner e as barrinhas
+        _buildPageIndicators(), // Indicadores de página (barrinhas)
+      ],
     );
   }
 
@@ -204,12 +223,12 @@ class _FunPageState extends State<FunPage> {
       children: List.generate(
         3,
             (index) => Container(
-          width: 59.0,
+          width: 109.0,
           height: 6.0,
-          margin: EdgeInsets.symmetric(horizontal: 4.0),
+          margin: EdgeInsets.symmetric(horizontal: 7.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(3.0),
-            color: _currentPage == index ? Colors.black54 : Colors.white60,
+            color: _currentPage == index ? Colors.black54 : Colors.grey,
           ),
         ),
       ),
@@ -280,17 +299,21 @@ class _FunPageState extends State<FunPage> {
                 SizedBox(height: 4.h),
                 ElevatedButton(
                   onPressed: () {
+                    // Atualiza o estado do botão
+                    setState(() {
+                      isChallenged[index] = true;
+                    });
                     // Implementar lógica de desafio
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: isChallenged[index] ? Colors.black : Colors.blue, // Cor do botão
                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                   child: Text(
-                    'Desafiar',
+                    isChallenged[index] ? 'Desafiado' : 'Desafiar', // Texto do botão
                     style: TextStyle(
                       fontSize: 12.sp,
                       color: Colors.white,

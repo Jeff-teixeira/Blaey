@@ -5,7 +5,6 @@ import 'rewarded_ad_page.dart';
 import 'bonus_page.dart';
 import 'store_page.dart';
 
-
 import 'package:audioplayers/audioplayers.dart';
 
 class WalletPage extends StatefulWidget {
@@ -71,7 +70,7 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
     // Initialize the animations
     _progressAnimation = Tween<double>(begin: 0, end: 1).animate(_progressController);
     _coinAnimation = Tween<Offset>(begin: Offset(0, 1), end: Offset(0, -2)).animate(_coinController);
-    _balanceColorAnimation = ColorTween(begin: Colors.black54, end: Colors.green)
+    _balanceColorAnimation = ColorTween(begin: Colors.white, end: Colors.green)
         .animate(CurvedAnimation(parent: _balanceController, curve: Curves.easeInOut));
     _flashAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_flashController);
 
@@ -144,7 +143,7 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
         _balanceController.reverse();
       });
     });
-  
+
     final player = AudioPlayer();
     await player.play(AssetSource('moeda.mp3'));
   }
@@ -229,187 +228,214 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Carteira',
-            style: TextStyle(fontSize: 23, color: Colors.black),
+      backgroundColor: Colors.black, // Fundo preto para a carteira virtual
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFE1BEE7), // Rosa claro
+              Color(0xFFAB47BC), // Roxo médio
+              Color(0xFF7B1FA2), // Roxo escuro
+            ],
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(11.0),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AnimatedBuilder(
-                  animation: _balanceColorAnimation,
-                  builder: (context, child) {
-                    return Container(
-                      padding: EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Saldo atual:',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          SizedBox(height: 0),
-                          Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/icons/moeda.png',
-                                  width: 40,
-                                  height: 40,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  '\$${userBalance.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    fontSize: userBalance >= 100 ? 40 : 60,
-                                    fontWeight: FontWeight.bold,
-                                    color: _balanceColorAnimation.value,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 32), // Espaço acima do cartão virtual
+              // Cartão Virtual
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30), // Aumentei o padding vertical
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)], // Verde escuro
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 0), // Reduz a distância entre o saldo e o bloco de imagens
-                _buildImageBlock(),
-                SizedBox(height: 1),
-                _buildRechargePoint(context),
-              ],
-            ),
-            if (showCoinAnimation)
-              AnimatedBuilder(
-                animation: _coinController,
-                builder: (context, child) {
-                  return Positioned(
-                    top: 100 + (_coinAnimation.value.dy * 200),
-                    left: MediaQuery.of(context).size.width / 2 - 50,
-                    child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "+\$${currentLevel.toDouble().toStringAsFixed(2)}",
+                          'Cartão Virtual',
                           style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.green,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        SizedBox(width: 1),
+                        Icon(Icons.credit_card, color: Colors.white, size: 30),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Saldo disponível',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\$${userBalance.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                         Image.asset(
-                          'assets/icons/moeda.png',
-                          width: 40,
-                          height: 40,
+                          'assets/icons/logoblaey.png',
+                          width: 70, // Aumentei o tamanho da imagem
+                          height: 70,
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            Center(
-              child: Visibility(
-                visible: showLevelText,
-                child: Text(
-                  currentLevel == 2 ? "Nível 2" : currentLevel == 3 ? "Nível 3" : "",
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: 32), // Espaço entre o cartão e os ícones
+              _buildIconRow(),
+              SizedBox(height: 32), // Espaço entre os ícones e o botão de anúncio
+              Expanded(
+                child: _buildRechargePoint(context),
+              ),
+              SizedBox(height: 16), // Espaço entre o bloco do anúncio e o botão
+              // Banner de oferta para a loja
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFF9800), Color(0xFFF44336)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.card_giftcard, color: Colors.white, size: 24),
+                    SizedBox(width: 8),
+                    Text(
+                      'Compre moedas e ganhe +20% ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      
     );
   }
 
-  Widget _buildImageBlock() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildIconColumn(
-            iconPath: 'assets/icons/convite.png',
-            radius: 40,
-            width: 60,
-            height: 130,
-            onTap: () {
-              // Ação para Convite
-            },
-          ),
-          SizedBox(width: 1),
-          _buildIconColumn(
-            iconPath: 'assets/icons/bonus.png',
-            radius: 73,
-            width: 180,
-            height: 200,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BonusPage()),
-              );
-            },
-          ),
-          SizedBox(width: 1),
-          _buildIconColumn(
-            iconPath: 'assets/icons/loja.png',
-            radius: 73,
-            width: 180,
-            height: 200,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => StorePage(updateBalance: _addReward)),
-              );
-            },
-          ),
-        ],
-      ),
+  Widget _buildIconRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildIconButton(
+          icon: Icons.mail_outline,
+          label: 'Convite',
+          color: Colors.white, // Ícone branco
+          onTap: () {
+            // Ação para Convite
+          },
+        ),
+        _buildIconButton(
+          icon: Icons.celebration, // Ícone de bônus mais bonito
+          label: 'Bônus',
+          color: Colors.white, // Ícone branco
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => BonusPage()),
+            );
+          },
+        ),
+        _buildIconButton(
+          icon: Icons.store,
+          label: 'Loja',
+          color: Colors.white, // Ícone branco
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StorePage(updateBalance: _addReward)),
+            );
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildIconColumn({
-    required String iconPath,
-    required double radius,
-    required double width,
-    required double height,
+  Widget _buildIconButton({
+    required IconData icon,
+    required String label,
+    required Color color,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.transparent,
-        child: Image.asset(iconPath, width: width, height: height),
+      borderRadius: BorderRadius.circular(20),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Icon(icon, size: 30, color: color), // Ícones menores
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -420,125 +446,179 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
     Color progressColor;
     switch (currentLevel) {
       case 1:
-        progressColor = Colors.blue;
+        progressColor = Colors.blueAccent;
         break;
       case 2:
-        progressColor = Colors.red;
+        progressColor = Colors.redAccent;
         break;
       case 3:
-        progressColor = Colors.black;
+        progressColor = Colors.purpleAccent;
         break;
       default:
-        progressColor = Colors.blue;
+        progressColor = Colors.blueAccent;
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 29),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Nível $currentLevel',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 8),
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: progressColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Ganhe moedas agora!', // Centralizado
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(width: 5),
-            Text(
-              'Período',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  '+\$${currentLevel.toDouble().toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(width: 2),
-                Image.asset(
-                  'assets/icons/moeda.png',
-                  width: 20,
-                  height: 20,
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.schedule, size: 20),
-                SizedBox(width: 4),
-                Text(
-                  '$adsWatched/$totalAds',
-                  style: TextStyle(fontSize: 24),
-                ),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: 19),
-        Center(
-          child: GestureDetector(
-            onTap: _watchAd,
-            child: Column(
-              children: [
-                Stack(
+          ),
+          SizedBox(height: 16),
+          Expanded(
+            child: Center(
+              child: GestureDetector(
+                onTap: _watchAd,
+                child: Stack(
                   alignment: Alignment.center,
                   children: [
                     SizedBox(
-                      width: 190,
-                      height: 195,
+                      width: 150,
+                      height: 150,
                       child: CircularProgressIndicator(
-                        value: adsWatched / totalAds,
+                        value: adsWatched / totalAds, // Atualiza a barra de progresso
                         backgroundColor: Colors.grey[300],
                         valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                        strokeWidth: 15,
+                        strokeWidth: 10,
                         strokeCap: StrokeCap.round,
                       ),
                     ),
+                    // Borda branca semi-transparente entre a barra de progresso e o botão
                     Container(
-                      width: 170,
-                      height: 170,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: progressColor,
+                        color: Colors.white.withOpacity(0.6), // 60% transparente
+                      ),
+                    ),
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle, // Já define um círculo perfeito
+                        gradient: LinearGradient(
+                          colors: [Colors.greenAccent, Colors.yellowAccent],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         Icons.play_arrow_rounded,
                         color: Colors.white,
-                        size: 120,
+                        size: 60,
                       ),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Bloco do L1, L2 ou L3
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'L$currentLevel',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      width: 16, // Tamanho menor
+                      height: 16, // Tamanho menor
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: progressColor, // Cor do nível
+                        border: Border.all(
+                          color: Colors.white, // Borda branca
+                          width: 1, // Borda mais fina
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Bloco do valor dinâmico (+1,00, +2,00, +3,00)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      '+${currentLevel.toStringAsFixed(2)}', // Valor dinâmico com "+"
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Image.asset(
+                      'assets/icons/moeda.png', // Ícone de moeda
+                      width: 20,
+                      height: 20,
+                    ),
+                  ],
+                ),
+              ),
+              // Bloco do 0/4
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.refresh, // Ícone de atualização
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '$adsWatched/$totalAds',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
-

@@ -11,9 +11,9 @@ class NetworkingPage extends StatelessWidget {
           title: Text('Networking', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'Grupos'),
-              Tab(text: 'Explorar'),
-              Tab(text: 'Eventos'),
+              Tab(icon: Icon(Icons.explore), text: 'Explorar'),
+              Tab(icon: Icon(Icons.group), text: 'Grupos'),
+              Tab(icon: Icon(Icons.event), text: 'Eventos'),
             ],
             labelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
             unselectedLabelStyle: TextStyle(fontSize: 14.sp),
@@ -24,10 +24,10 @@ class NetworkingPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            // Conteúdo da aba Grupos
-            _buildGroupsTab(),
             // Conteúdo da aba Explorar
             _buildExploreTab(),
+            // Conteúdo da aba Grupos
+            _buildGroupsTab(),
             // Conteúdo da aba Eventos
             _buildEventsTab(),
           ],
@@ -113,9 +113,9 @@ class NetworkingPage extends StatelessWidget {
                 onPressed: () {
                   // Ação para conectar
                 },
-                child: Text('Conectar', style: TextStyle(fontSize: 14.sp)),
+                child: Text('Conectar', style: TextStyle(fontSize: 14.sp, color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Alterado de 'primary' para 'backgroundColor'
+                  backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                 ),
               ),
