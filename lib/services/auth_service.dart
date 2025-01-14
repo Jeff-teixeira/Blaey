@@ -5,75 +5,39 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  // Getter para o estado de autenticação do usuário
+  // Stream de mudanças no estado de autenticação
   Stream<User?> get user => _auth.authStateChanges();
 
-  // Verificação de número de telefone
-  Future<void> verifyPhoneNumber(
-      String phoneNumber,
-      Function(PhoneAuthCredential) verificationCompleted,
-      Function(FirebaseAuthException) verificationFailed,
-      Function(String, int?) codeSent,
-      Function(String) codeAutoRetrievalTimeout,
-      ) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: verificationCompleted,
-      verificationFailed: verificationFailed,
-      codeSent: codeSent,
-      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-    );
-  }
-
-  // Login com número de telefone
-  Future<UserCredential> signInWithPhoneNumber(String smsCode, String verificationId) async {
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: smsCode,
-    );
-    return await _auth.signInWithCredential(credential);
-  }
-
-  // Login com Google
-  Future<UserCredential?> signInWithGoogle() async {
+  // Função para fazer login com o Google
+  Future<UserCredential> signInWithGoogle() async {
     try {
+      // Inicia o fluxo de autenticação do Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'ERROR_ABORTED_BY_USER',
+          message: 'Login com Google abortado pelo usuário.',
+        );
+      }
 
+      // Obtém o token de autenticação do Google
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
+
+      // Cria as credenciais do Firebase com o token do Google
+      final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
+      // Faz o login no Firebase com as credenciais do Google
       return await _auth.signInWithCredential(credential);
     } catch (e) {
-      print("Error during Google sign in: $e");
-      return null;
+      print(e.toString());
+      rethrow;
     }
   }
 
-  // Registro com email e senha
-  Future<UserCredential> createUserWithEmailAndPassword(String email, String password) async {
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        throw 'A senha fornecida é muito fraca.';
-      } else if (e.code == 'email-already-in-use') {
-        throw 'Uma conta já existe para esse email.';
-      }
-      throw e.message ?? 'Ocorreu um erro no registro.';
-    } catch (e) {
-      throw 'Ocorreu um erro no registro.';
-    }
-  }
-
-  // Login com email e senha
+  // Função para fazer login com email e senha
   Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(email: email, password: password);
@@ -83,7 +47,24 @@ class AuthService {
     }
   }
 
+  // Função para criar um novo usuário com email e senha
+  Future<UserCredential> createUserWithEmailAndPassword(String email, String password) async {
+    try {
+      return await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
+
+  // Função para fazer logout
   Future<void> signOut() async {
     await _auth.signOut();
+    await _googleSignIn.signOut(); // Certifique-se de que o Google SignIn também é desconectado
+  }
+
+  // Função para obter o usuário atual
+  User? getCurrentUser() {
+    return _auth.currentUser;
   }
 }

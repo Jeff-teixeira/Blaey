@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  provider: ^6.0.5
+  provider: ^6.1.2
   http: ^1.1.0
   carousel_slider: ^4.2.1
   flutter_screenutil: ^5.8.4
@@ -23,16 +23,16 @@ dependencies:
   flutter_animate: ^4.2.0
   flutter_emoji: ^2.5.1
   audioplayers: ^5.2.1
-  firebase_core: ^2.15.1
+  firebase_core: ^2.0.0
   firebase_messaging: ^14.2.0
   firebase_analytics: ^10.4.5
   firebase_crashlytics: ^3.4.0
-  firebase_auth: ^4.2.0
+  firebase_auth: ^4.7.2
   firebase_auth_web: ^5.8.13
   firebase_database: ^10.2.5
   cloud_firestore: ^4.9.1
   firebase_storage: ^11.2.6
-  google_sign_in: ^5.4.0
+  google_sign_in: ^6.2.0
   shared_preferences: ^2.2.0
   flutter_local_notifications: ^15.1.3
   intl: ^0.18.1
@@ -70,6 +70,9 @@ flutter:
     - assets/jogos/berasso.png
     - assets/jogos/super.png
     - assets/jogos/rei.png
+    - assets/jogos/banner1.png
+    - assets/jogos/banner2.png
+    - assets/jogos/banner3.png
     - assets/images/pesquisa.png
     - assets/icons/logoblaey.png
     - assets/icons/user.png

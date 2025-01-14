@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
-import 'register_page.dart';
-import 'fun_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../pages/fun_page.dart';
+import '../services/auth_service.dart'; // Certifique-se de que o caminho está correto
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,15 +10,89 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
+  bool _isLoading = false;
+
+  Future<void> _loginWithEmail(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      String email = _emailController.text;
+      String password = _passwordController.text;
+
+      final authService = Provider.of<AuthService>(context, listen: false);
+
+      try {
+        UserCredential userCredential = await authService.signInWithEmailAndPassword(email, password);
+
+        // Navegação para FunPage após login bem-sucedido
+        double userBalance = 100.0; // Exemplo de valor de saldo
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => FunPage(userBalance: userBalance)),
+        );
+      } on FirebaseAuthException catch (e) {
+        String errorMessage = 'Login falhou! Verifique suas credenciais.';
+        if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+          errorMessage = 'E-mail ou senha incorretos.';
+        } else if (e.code == 'too-many-requests') {
+          errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ocorreu um erro inesperado.')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loginWithGoogle(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    try {
+      UserCredential userCredential = await authService.signInWithGoogle();
+
+      // Navegação para FunPage após login bem-sucedido
+      double userBalance = 100.0; // Exemplo de valor de saldo
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => FunPage(userBalance: userBalance)),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ocorreu um erro ao fazer login com Google.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ocorreu um erro inesperado.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text("Tela de Login"),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -26,67 +100,54 @@ class _LoginPageState extends State<LoginPage> {
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'E-mail'),
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu email';
+                  if (value == null || value.isEmpty || !value.contains('@')) {
+                    return 'Por favor, insira um e-mail válido.';
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value!,
               ),
               SizedBox(height: 20),
               TextFormField(
+                controller: _passwordController,
                 decoration: InputDecoration(labelText: 'Senha'),
                 obscureText: true,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha';
+                  if (value == null || value.isEmpty || value.length < 6) {
+                    return 'A senha deve ter pelo menos 6 caracteres.';
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value!,
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
+              SizedBox(height: 30),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: () => _loginWithEmail(context),
                 child: Text('Entrar'),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    _login();
-                  }
-                },
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _loginWithGoogle(context),
+                child: Text('Entrar com Google'),
+              ),
+              SizedBox(height: 10),
               TextButton(
-                child: Text('Criar uma conta'),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
-                  );
+                  // Navega para a página de registro
                 },
+                child: Text('Não tem uma conta? Registre-se'),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  void _login() async {
-    try {
-      await Provider.of<AuthService>(context, listen: false).signInWithEmailAndPassword(_email, _password);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => FunPage(userBalance: 100.0)),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao fazer login: $e')),
-      );
-    }
   }
 }

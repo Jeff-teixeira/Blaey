@@ -1,0 +1,4 @@
+<resources>
+    <!-- Defina sua cor principal aqui -->
+    <color name="primaryColor">#FF6200EE</color> <!-- Exemplo de cor roxa, substitua conforme necessário -->
+</resources>

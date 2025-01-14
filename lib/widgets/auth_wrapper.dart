@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../pages/login_page.dart';
-import '../main.dart';
+import '../main.dart';  // Import HomePage from main.dart instead
+
+// Rest of the AuthWrapper code remains the same
 
 class AuthWrapper extends StatelessWidget {
   @override

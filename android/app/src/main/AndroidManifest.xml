@@ -2,10 +2,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.company.blaey">
 
+    <!-- Permissões de Internet -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="blaey"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Configurações de notificações do Firebase -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/primaryColor" /> <!-- Cor principal definida no colors.xml -->
+
+        <!-- Configuração do Google Sign-In -->
+        <service android:name="com.google.firebase.auth.api.gms.FirebaseAuthService"
+            android:exported="false" />
+
+        <!-- Atividade principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,12 +40,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Metadados do Flutter -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
     </application>
 
-    <!-- Queries for specific intents -->
+    <!-- Queries para intents específicos -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />

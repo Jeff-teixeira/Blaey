@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
-import 'login_page.dart';
+import '../services/auth_service.dart' as auth; // Use alias for auth_service
+import '../pages/login_page.dart'; // Importação corrigida
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -17,7 +17,7 @@ class SettingsPage extends StatelessWidget {
             title: Text('Sair da conta'),
             onTap: () async {
               // Usar o AuthService para fazer logout
-              final authService = Provider.of<AuthService>(context, listen: false);
+              final authService = Provider.of<auth.AuthService>(context, listen: false);
               await authService.signOut();
 
               // Navegar para a página de login

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'subscription_page.dart';
+
 import 'rewarded_ad_page.dart';
 import 'bonus_page.dart';
 import 'store_page.dart';
 
-import 'recarga_pro.dart';
+
 import 'package:audioplayers/audioplayers.dart';
 
 class WalletPage extends StatefulWidget {
@@ -33,8 +33,8 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
   late Animation<Color?> _balanceColorAnimation;
   late Animation<double> _flashAnimation;
 
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Adiciona o AudioPlayer
-  final AudioCache _audioCache = AudioCache(prefix: 'assets/som/'); // Adiciona o AudioCache
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioCache _audioCache = AudioCache(prefix: 'assets/som/');
 
   static const int level1Ads = 4;
   static const int level2Ads = 6;
