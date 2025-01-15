@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   provider: ^6.1.2
   http: ^1.1.0
+  flame: ^1.0.0  # Atualize para a versão mais recente
   carousel_slider: ^4.2.1
   flutter_screenutil: ^5.8.4
   rive: ^0.11.4
@@ -84,6 +85,10 @@ flutter:
     - assets/jogos/banner1.png
     - assets/jogos/banner2.png
     - assets/jogos/banner3.png
+    - assets/jogos/banner4.png
+    - assets/jogos/torneios.png
+    - assets/jogos/eventos.png
+    - assets/jogos/maratonas.png
     - assets/images/pesquisa.png
     - assets/icons/logoblaey.png
     - assets/icons/user.png

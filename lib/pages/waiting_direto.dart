@@ -4,7 +4,7 @@ import 'jogos/game_page_dama.dart';
 import 'jogos/gamepage_chess.dart';
 import 'jogos/gamepage_ludo.dart';
 import 'jogos/gamepage_truco.dart';
-import 'jogos/gamepage_jogo_da_velha.dart';
+import 'jogos/jogodavelha/gamepage_jogo_da_velha.dart';
 
 class WaitingDiretoPage extends StatefulWidget {
   final String gameTitle;

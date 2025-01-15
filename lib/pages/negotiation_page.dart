@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:blaey_app/pages/ready_screen.dart'; // Import ReadyScreen
 import 'jogos/gamepage_ludo.dart';
 import 'jogos/gamepage_truco.dart';
-import 'jogos/gamepage_jogo_da_velha.dart';
+import 'jogos/jogodavelha/gamepage_jogo_da_velha.dart';
 import 'jogos/gamepage_chess.dart';
 import 'jogos/game_page_dama.dart';
 

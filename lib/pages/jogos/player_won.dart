@@ -18,8 +18,8 @@ class PlayerWonPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navigate back to home or restart game
-                Navigator.pop(context);
+                // Voltar ao início ou reiniciar o jogo
+                Navigator.popUntil(context, (route) => route.isFirst);
               },
               child: Text('Voltar ao início'),
             ),

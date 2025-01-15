@@ -80,10 +80,11 @@ class _FunPageState extends State<FunPage> {
             _buildUserCarousel(),
             SizedBox(height: 1.h),
             _buildRecentGames(),
-            SizedBox(height: 20.h),
+            SizedBox(height: 20.h), // Espaço após jogos recentes
             _buildTournamentsAndEvents(),
             SizedBox(height: 20.h),
             _buildAllGamesGrid(),
+            _buildAdAtBottom(), // Anúncio no final da página
           ],
         ),
       ),
@@ -106,7 +107,7 @@ class _FunPageState extends State<FunPage> {
             height: 30.h,
           ),
         ),
-        SizedBox(width: 4.w), // Espaço entre pesquisa e salado
+        SizedBox(width: 4.w), // Espaço entre pesquisa e saldo
         Container(
           padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
           decoration: BoxDecoration(
@@ -206,7 +207,7 @@ class _FunPageState extends State<FunPage> {
     return Column(
       children: [
         Container(
-          height: 140.h,
+          height: 100.h,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(0.r),
             child: PageView(
@@ -220,11 +221,12 @@ class _FunPageState extends State<FunPage> {
                 Image.asset('assets/jogos/banner1.png', fit: BoxFit.cover),
                 Image.asset('assets/jogos/banner2.png', fit: BoxFit.cover),
                 Image.asset('assets/jogos/banner3.png', fit: BoxFit.cover),
+                Image.asset('assets/jogos/banner4.png', fit: BoxFit.cover),
               ],
             ),
           ),
         ),
-        SizedBox(height: 5.h), // Reduzir o espaço entre o banner e as barrinhas
+        SizedBox(height: 1.h), // Reduzir o espaço entre o banner e as barrinhas
         _buildPageIndicators(), // Indicadores de página (barrinhas)
       ],
     );
@@ -236,12 +238,12 @@ class _FunPageState extends State<FunPage> {
       children: List.generate(
         3,
             (index) => Container(
-          width: 109.0,
-          height: 6.0,
+          width: 119.0,
+          height: 4.0,
           margin: EdgeInsets.symmetric(horizontal: 7.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(3.0),
-            color: _currentPage == index ? Colors.black54 : Colors.grey,
+            borderRadius: BorderRadius.circular(1.0),
+            color: _currentPage == index ? Colors.blueGrey : Colors.white70,
           ),
         ),
       ),
@@ -422,37 +424,28 @@ class _FunPageState extends State<FunPage> {
         ),
         SizedBox(height: 16.h),
         Container(
-          height: 100.h,
+          height: 140.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 3,
             itemBuilder: (context, index) {
               final events = [
-                {'title': 'Torneio de Xadrez', 'date': '15 Jun'},
-                {'title': 'Campeonato de Damas', 'date': '22 Jun'},
-                {'title': 'Maratona de Ludo', 'date': '30 Jun'},
+                'assets/jogos/torneios.png',
+                'assets/jogos/eventos.png',
+                'assets/jogos/maratonas.png',
               ];
               return Container(
                 width: 190.w,
                 margin: EdgeInsets.only(right: 16.w),
-                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      events[index]['title']!,
-                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      events[index]['date']!,
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                    ),
-                  ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Image.asset(
+                    events[index],
+                    fit: BoxFit.cover,
+                  ),
                 ),
               );
             },
@@ -465,6 +458,57 @@ class _FunPageState extends State<FunPage> {
   Widget _buildAllGamesGrid() {
     return Column(
       children: [
+        // Anúncio acima do texto "Todos os Jogos"
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.deepPurple, // Fundo roxo
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.ads_click, size: 40.r, color: Colors.white),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ANÚNCIO',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Confira nossas promoções exclusivas!',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Ação ao clicar no anúncio
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                ),
+                child: Text(
+                  'Saiba Mais',
+                  style: TextStyle(fontSize: 12.sp, color: Colors.deepPurple),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Texto "Todos os Jogos"
         Row(
           children: [
             Icon(
@@ -488,20 +532,50 @@ class _FunPageState extends State<FunPage> {
             mainAxisSpacing: 6.h,
             childAspectRatio: 0.8,
           ),
-          itemCount: 6,
+          itemCount: 7, // 6 jogos + 1 anúncio
           itemBuilder: (context, index) {
-            final games = [
-              {'name': 'Dama', 'image': 'assets/jogos/dama.png'},
-              {'name': 'Xadrez', 'image': 'assets/jogos/xadrez.png'},
-              {'name': 'Ludo', 'image': 'assets/jogos/ludo.png'},
-              {'name': 'Truco', 'image': 'assets/jogos/truco.png'},
-              {'name': 'Jogo da Velha', 'image': 'assets/jogos/jogo_da_velha.png'},
-              {'name': 'Outro Jogo', 'image': 'assets/jogos/dama.png'},
-            ];
-            return _buildGameItem(games[index]['name']!, games[index]['image']!);
+            if (index == 3) { // Anúncio na posição 3
+              return _buildAdInGamesGrid();
+            } else {
+              final games = [
+                {'name': 'Dama', 'image': 'assets/jogos/dama.png'},
+                {'name': 'Xadrez', 'image': 'assets/jogos/xadrez.png'},
+                {'name': 'Ludo', 'image': 'assets/jogos/ludo.png'},
+                {'name': 'Truco', 'image': 'assets/jogos/truco.png'},
+                {'name': 'Jogo da Velha', 'image': 'assets/jogos/jogo_da_velha.png'},
+                {'name': 'Outro Jogo', 'image': 'assets/jogos/dama.png'},
+              ];
+              return _buildGameItem(games[index]['name']!, games[index]['image']!);
+            }
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildAdInGamesGrid() {
+    return InkWell(
+      onTap: () {
+        // Ação ao clicar no anúncio
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 100.w,
+            height: 100.h,
+            decoration: BoxDecoration(
+              color: Colors.deepPurple,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(Icons.ads_click, size: 40.r, color: Colors.white),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Anúncio',
+            style: TextStyle(fontSize: 14.sp),
+          ),
+        ],
+      ),
     );
   }
 
@@ -529,6 +603,30 @@ class _FunPageState extends State<FunPage> {
             style: TextStyle(fontSize: 14.sp),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAdAtBottom() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+      height: 120.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        image: DecorationImage(
+          image: AssetImage('assets/jogos/banner_ad2.png'), // Imagem de fundo
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Novidades em Breve!',
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }

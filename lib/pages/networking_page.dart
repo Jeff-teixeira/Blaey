@@ -10,8 +10,8 @@ class NetworkingPage extends StatelessWidget {
         appBar: AppBar(
           title: Row(
             children: [
-              Icon(Icons.people, size: 24.sp), // Icon of two people
-              SizedBox(width: 8.w), // Space between icon and text
+              Icon(Icons.people, size: 24.sp), // Ícone de duas pessoas
+              SizedBox(width: 8.w), // Espaço entre o ícone e o texto
               Text('Networking', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
             ],
           ),
@@ -30,11 +30,8 @@ class NetworkingPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            // Conteúdo da aba Explorar
             _buildExploreTab(),
-            // Conteúdo da aba Grupos
             _buildGroupsTab(),
-            // Conteúdo da aba Eventos
             _buildEventsTab(),
           ],
         ),
@@ -52,29 +49,55 @@ class NetworkingPage extends StatelessWidget {
   Widget _buildGroupsTab() {
     return ListView.builder(
       padding: EdgeInsets.all(12.w),
-      itemCount: 10,
+      itemCount: 10 + (10 ~/ 3), // Adiciona espaço para anúncios
       itemBuilder: (context, index) {
-        return Card(
-          margin: EdgeInsets.only(bottom: 12.h),
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            title: Text(
-              'Grupo ${index + 1}',
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        if ((index + 1) % 4 == 0) { // A cada 3 grupos, exibe um anúncio
+          return Card(
+            margin: EdgeInsets.only(bottom: 12.h),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            color: Colors.deepPurple, // Fundo roxo
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              title: Text(
+                'Anúncio',
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              subtitle: Text(
+                'Este é um anúncio relevante para você.',
+                style: TextStyle(fontSize: 14.sp, color: Colors.white),
+              ),
+              leading: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25.r,
+                child: Icon(Icons.ads_click, size: 30.r, color: Colors.deepPurple),
+              ),
             ),
-            subtitle: Text('Descrição do grupo ${index + 1}', style: TextStyle(fontSize: 14.sp)),
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue,
-              radius: 25.r,
-              child: Icon(Icons.group, size: 30.r, color: Colors.white),
+          );
+        } else {
+          final groupIndex = index - (index ~/ 4); // Ajusta o índice para pegar o grupo correto
+          return Card(
+            margin: EdgeInsets.only(bottom: 12.h),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              title: Text(
+                'Grupo ${groupIndex + 1}',
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('Descrição do grupo ${groupIndex + 1}', style: TextStyle(fontSize: 14.sp)),
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                radius: 25.r,
+                child: Icon(Icons.group, size: 30.r, color: Colors.white),
+              ),
+              onTap: () {
+                // Ação ao clicar no grupo
+              },
             ),
-            onTap: () {
-              // Ação ao clicar no grupo
-            },
-          ),
-        );
+          );
+        }
       },
     );
   }
@@ -97,37 +120,62 @@ class NetworkingPage extends StatelessWidget {
         childAspectRatio: 0.8,
       ),
       padding: EdgeInsets.all(12.w),
-      itemCount: userImages.length,
+      itemCount: userImages.length + (userImages.length ~/ 3), // Adiciona espaço para anúncios
       itemBuilder: (context, index) {
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 50.r,
-                backgroundImage: AssetImage(userImages[index]),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                'Usuário ${index + 1}',
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8.h),
-              ElevatedButton(
-                onPressed: () {
-                  // Ação para conectar
-                },
-                child: Text('Conectar', style: TextStyle(fontSize: 14.sp, color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        if ((index + 1) % 4 == 0) { // A cada 3 usuários, exibe um anúncio
+          return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            color: Colors.deepPurple, // Fundo roxo
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.ads_click, size: 50.r, color: Colors.white),
+                SizedBox(height: 12.h),
+                Text(
+                  'Anúncio',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-              ),
-            ],
-          ),
-        );
+                SizedBox(height: 8.h),
+                Text(
+                  'Conheça nossas ofertas!',
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                ),
+              ],
+            ),
+          );
+        } else {
+          final userIndex = index - (index ~/ 4); // Ajusta o índice para pegar o usuário correto
+          return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50.r,
+                  backgroundImage: AssetImage(userImages[userIndex]),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'Usuário ${userIndex + 1}',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8.h),
+                ElevatedButton(
+                  onPressed: () {
+                    // Ação para conectar
+                  },
+                  child: Text('Conectar', style: TextStyle(fontSize: 14.sp, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       },
     );
   }
@@ -135,36 +183,62 @@ class NetworkingPage extends StatelessWidget {
   Widget _buildEventsTab() {
     return ListView.builder(
       padding: EdgeInsets.all(12.w),
-      itemCount: 10,
+      itemCount: 10 + (10 ~/ 3), // Adiciona espaço para anúncios
       itemBuilder: (context, index) {
-        return Card(
-          margin: EdgeInsets.only(bottom: 12.h),
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            title: Text(
-              'Evento ${index + 1}',
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        if ((index + 1) % 4 == 0) { // A cada 3 eventos, exibe um anúncio
+          return Card(
+            margin: EdgeInsets.only(bottom: 12.h),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            color: Colors.deepPurple, // Fundo roxo
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              title: Text(
+                'Anúncio',
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              subtitle: Text(
+                'Confira nossas promoções!',
+                style: TextStyle(fontSize: 14.sp, color: Colors.white),
+              ),
+              leading: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25.r,
+                child: Icon(Icons.ads_click, size: 30.r, color: Colors.deepPurple),
+              ),
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 4.h),
-                Text('Data: ${DateTime.now().add(Duration(days: index)).toString().substring(0, 10)}', style: TextStyle(fontSize: 14.sp)),
-                Text('Local: Local do evento ${index + 1}', style: TextStyle(fontSize: 14.sp)),
-              ],
+          );
+        } else {
+          final eventIndex = index - (index ~/ 4); // Ajusta o índice para pegar o evento correto
+          return Card(
+            margin: EdgeInsets.only(bottom: 12.h),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              title: Text(
+                'Evento ${eventIndex + 1}',
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 4.h),
+                  Text('Data: ${DateTime.now().add(Duration(days: eventIndex)).toString().substring(0, 10)}', style: TextStyle(fontSize: 14.sp)),
+                  Text('Local: Local do evento ${eventIndex + 1}', style: TextStyle(fontSize: 14.sp)),
+                ],
+              ),
+              leading: CircleAvatar(
+                backgroundColor: Colors.red,
+                radius: 25.r,
+                child: Icon(Icons.event, size: 30.r, color: Colors.white),
+              ),
+              onTap: () {
+                // Ação ao clicar no evento
+              },
             ),
-            leading: CircleAvatar(
-              backgroundColor: Colors.red,
-              radius: 25.r,
-              child: Icon(Icons.event, size: 30.r, color: Colors.white),
-            ),
-            onTap: () {
-              // Ação ao clicar no evento
-            },
-          ),
-        );
+          );
+        }
       },
     );
   }

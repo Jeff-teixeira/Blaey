@@ -68,38 +68,54 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   ];
 
   @override
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 12,
-        unselectedFontSize: 11,
-        iconSize: 24,
-        selectedLabelStyle: TextStyle(
-          fontFamily: 'SFProDisplay', // Fonte para o item selecionado
-          fontWeight: FontWeight.bold,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFFF5F5F7), // Mesma cor do scaffoldBackgroundColor
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 0,
+              blurRadius: 4,
+              offset: Offset(0, -1), // Sombra na parte superior
+            ),
+          ],
         ),
-        unselectedLabelStyle: TextStyle(
-          fontFamily: 'SFProText', // Fonte para itens não selecionados
-          fontWeight: FontWeight.bold,
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 12,
+          unselectedFontSize: 11,
+          iconSize: 24,
+          selectedLabelStyle: TextStyle(
+            fontFamily: 'SFProDisplay',
+            fontWeight: FontWeight.w600, // Semibold
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontFamily: 'SFProText',
+            fontWeight: FontWeight.w600, // Semibold
+          ),
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
+          backgroundColor: Colors.transparent, // Torna o fundo transparente
+          elevation: 0, // Remove a sombra padrão
+          items: [
+            _buildNavigationBarItem(Icons.message, 0, 'Conversas'),
+            _buildNavigationBarItem(Icons.videogame_asset_rounded, 1, 'Diversão'),
+            _buildNavigationBarItem(Icons.people, 2, 'Networking'),
+            _buildNavigationBarItem(Icons.account_balance_wallet, 3, 'Carteira'),
+            _buildNavigationBarItem(Icons.notifications, 4, 'Notificações'),
+          ],
         ),
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        items: [
-          _buildNavigationBarItem(Icons.message, 0, 'Conversas'),
-          _buildNavigationBarItem(Icons.videogame_asset_rounded, 1, 'Diversão'),
-          _buildNavigationBarItem(Icons.people, 2, 'Networking'),
-          _buildNavigationBarItem(Icons.account_balance_wallet, 3, 'Carteira'),
-          _buildNavigationBarItem(Icons.notifications, 4, 'Notificações'),
-        ],
       ),
     );
   }
