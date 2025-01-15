@@ -6,6 +6,7 @@ version: 1.0.0+1
 environment:
   sdk: ">=3.6.0 <4.0.0"
   flutter: ">=3.27.1 <4.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -33,8 +34,8 @@ dependencies:
   cloud_firestore: ^4.9.1
   firebase_storage: ^11.2.6
   google_sign_in: ^6.2.0
-  shared_preferences: ^2.2.0
-  flutter_local_notifications: ^15.1.3
+  shared_preferences: ^2.2.2
+  flutter_local_notifications: ^14.1.5 # Versão anterior
   intl: ^0.18.1
   cached_network_image: ^3.2.3
   connectivity_plus: ^4.0.2
@@ -50,14 +51,24 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   mockito: ^5.4.2
 
-
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/icons/app_icon.png"
-
 flutter:
   uses-material-design: true
+  fonts:
+    - family: SFProText
+      fonts:
+        - asset: assets/fonts/SF-Pro-Text-Regular.otf
+          weight: 400
+        - asset: assets/fonts/SF-Pro-Text-RegularItalic.otf
+          style: italic
+        - asset: assets/fonts/SF-Pro-Text-Semibold.otf
+          weight: 600
+    - family: SFProDisplay
+      fonts:
+        - asset: assets/fonts/SF-Pro-Display-Bold.otf
+          weight: 700
+        - asset: assets/fonts/SF-Pro-Display-Black.otf
+          weight: 900
+
   assets:
     - assets/icons/icon_transparente.png
     - assets/icons/app_icon.png
@@ -126,8 +137,3 @@ flutter:
     - assets/jogos/chess/damabranco.png
     - assets/jogos/chess/reibranco.png
     - assets/jogos/chess/tabuleirochess.png
-
-
-
-
-

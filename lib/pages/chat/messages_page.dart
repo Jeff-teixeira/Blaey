@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 import '../profile_page.dart';
 import 'chat_page.dart';
 import 'chat_secundario_page.dart';
 import 'notas_page.dart';
 
-class MessagesPage extends StatelessWidget {
+class MessagesPage extends StatefulWidget {
+  @override
+  _MessagesPageState createState() => _MessagesPageState();
+}
+
+class _MessagesPageState extends State<MessagesPage> {
+  String? _profileImagePath;
   final String userPhotoUrl = "assets/icons/perfil.png"; // Use a imagem do perfil correta
 
   final List<Map<String, String>> messages = [
@@ -33,6 +41,19 @@ class MessagesPage extends StatelessWidget {
     {'user': 'Peggy', 'image': 'assets/icons/user.png'},
     {'user': 'Sybil', 'image': 'assets/icons/user.png'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _profileImagePath = prefs.getString('profile_image_path');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +103,9 @@ class MessagesPage extends StatelessWidget {
               },
               child: CircleAvatar(
                 radius: 22,
-                backgroundImage: AssetImage(userPhotoUrl),
+                backgroundImage: _profileImagePath != null
+                    ? FileImage(File(_profileImagePath!))
+                    : AssetImage(userPhotoUrl) as ImageProvider,
               ),
             ),
             SizedBox(width: 8),

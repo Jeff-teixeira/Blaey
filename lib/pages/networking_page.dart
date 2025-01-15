@@ -8,7 +8,13 @@ class NetworkingPage extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Networking', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+          title: Row(
+            children: [
+              Icon(Icons.people, size: 24.sp), // Icon of two people
+              SizedBox(width: 8.w), // Space between icon and text
+              Text('Networking', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+            ],
+          ),
           bottom: TabBar(
             tabs: [
               Tab(icon: Icon(Icons.explore), text: 'Explorar'),

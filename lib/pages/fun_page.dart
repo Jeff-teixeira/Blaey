@@ -7,6 +7,8 @@ import 'friend_profile_page.dart' as friendProfile;
 import 'store_page.dart';
 import 'blaey_page.dart';
 import 'floating_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class FunPage extends StatefulWidget {
   final double userBalance;
@@ -21,6 +23,7 @@ class _FunPageState extends State<FunPage> {
   final PageController _pageController = PageController();
   Timer? _timer;
   int _currentPage = 0;
+  String? _profileImagePath;
 
   // Lista para rastrear o estado de cada botão de desafio
   List<bool> isChallenged = List.generate(5, (index) => false);
@@ -29,6 +32,14 @@ class _FunPageState extends State<FunPage> {
   void initState() {
     super.initState();
     _startTimer();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _profileImagePath = prefs.getString('profile_image_path');
+    });
   }
 
   @override
@@ -95,7 +106,7 @@ class _FunPageState extends State<FunPage> {
             height: 30.h,
           ),
         ),
-        SizedBox(width: 4.w), // Espaço entre pesquisa e saldo
+        SizedBox(width: 4.w), // Espaço entre pesquisa e salado
         Container(
           padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
           decoration: BoxDecoration(
@@ -163,7 +174,9 @@ class _FunPageState extends State<FunPage> {
               child: CircleAvatar(
                 radius: 20.r,
                 backgroundColor: const Color(0xFFE7DFEC),
-                backgroundImage: AssetImage('assets/icons/perfil.png'),
+                backgroundImage: _profileImagePath != null
+                    ? FileImage(File(_profileImagePath!))
+                    : AssetImage('assets/icons/perfil.png') as ImageProvider,
               ),
             ),
             SizedBox(width: 10.w), // Reduzir o espaço entre os ícones

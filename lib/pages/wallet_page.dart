@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:shared_preferences/shared_preferences.dart'; // Importe o SharedPreferences
 import 'rewarded_ad_page.dart';
 import 'bonus_page.dart';
 import 'store_page.dart';
-
 import 'package:audioplayers/audioplayers.dart';
 
 class WalletPage extends StatefulWidget {
@@ -44,9 +43,10 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _loadUserBalance(); // Carregar o saldo salvo ao iniciar
     startLevelTimer();
 
-    // Initialize the animation controllers
+    // Inicializa os controladores de animação
     _progressController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000),
@@ -67,7 +67,7 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 500),
     )..repeat(reverse: true);
 
-    // Initialize the animations
+    // Inicializa as animações
     _progressAnimation = Tween<double>(begin: 0, end: 1).animate(_progressController);
     _coinAnimation = Tween<Offset>(begin: Offset(0, 1), end: Offset(0, -2)).animate(_coinController);
     _balanceColorAnimation = ColorTween(begin: Colors.white, end: Colors.green)
@@ -76,8 +76,21 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
 
     // Pré-carregar sons
     _audioCache.loadAll(['move_sound.mp3', 'moeda.mp3']);
-
     startProgressRegression();
+  }
+
+  // Método para carregar o saldo salvo
+  Future<void> _loadUserBalance() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userBalance = prefs.getDouble('userBalance') ?? 0.0; // Recupera o saldo ou define 0.0 como padrão
+    });
+  }
+
+  // Método para salvar o saldo
+  Future<void> _saveUserBalance(double balance) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('userBalance', balance); // Salva o saldo
   }
 
   @override
@@ -89,7 +102,7 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
     _coinController.dispose();
     _balanceController.dispose();
     _flashController.dispose();
-    _audioPlayer.dispose(); // Dispose o AudioPlayer
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -143,6 +156,8 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
         _balanceController.reverse();
       });
     });
+
+    await _saveUserBalance(userBalance); // Salva o saldo após adicionar a recompensa
 
     final player = AudioPlayer();
     await player.play(AssetSource('moeda.mp3'));
@@ -235,9 +250,9 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFE1BEE7), // Rosa claro
-              Color(0xFFAB47BC), // Roxo médio
-              Color(0xFF7B1FA2), // Roxo escuro
+              Color(0xFFDAD9D9), // Rosa claro
+              Color(0xBE1E1D1D), // Roxo médio
+              Color(0xFF131212), // Roxo escuro
             ],
             stops: [0.0, 0.5, 1.0],
           ),
@@ -424,7 +439,7 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            child: Icon(icon, size: 30, color: color), // Ícones menores
+            child: Icon(icon, size: 40, color: color),
           ),
           SizedBox(height: 8),
           Text(
@@ -495,15 +510,6 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
                         strokeCap: StrokeCap.round,
                       ),
                     ),
-                    // Borda branca semi-transparente entre a barra de progresso e o botão
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.6), // 60% transparente
-                      ),
-                    ),
                     Container(
                       width: 120,
                       height: 120,
@@ -531,7 +537,33 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Bloco do L1, L2 ou L3
+              // Bloco do 1,00
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      '1,00',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Image.asset(
+                      'assets/icons/moeda.png', // Ícone de moeda
+                      width: 20,
+                      height: 20,
+                    ),
+                  ],
+                ),
+              ),
+              // Bloco do L1 com círculo colorido
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
@@ -550,42 +582,16 @@ class _WalletPageState extends State<WalletPage> with TickerProviderStateMixin {
                     ),
                     SizedBox(width: 8),
                     Container(
-                      width: 16, // Tamanho menor
-                      height: 16, // Tamanho menor
+                      width: 20,
+                      height: 20,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: progressColor, // Cor do nível
                         border: Border.all(
                           color: Colors.white, // Borda branca
-                          width: 1, // Borda mais fina
+                          width: 2,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              // Bloco do valor dinâmico (+1,00, +2,00, +3,00)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      '+${currentLevel.toStringAsFixed(2)}', // Valor dinâmico com "+"
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.greenAccent,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Image.asset(
-                      'assets/icons/moeda.png', // Ícone de moeda
-                      width: 20,
-                      height: 20,
                     ),
                   ],
                 ),
