@@ -1,14 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart' as profile;
 import 'trophies_page.dart';
 import 'friend_profile_page.dart' as friendProfile;
 import 'store_page.dart';
 import 'blaey_page.dart';
 import 'floating_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
 
 class FunPage extends StatefulWidget {
   final double userBalance;
@@ -19,11 +19,12 @@ class FunPage extends StatefulWidget {
   _FunPageState createState() => _FunPageState();
 }
 
-class _FunPageState extends State<FunPage> {
+class _FunPageState extends State<FunPage> with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   Timer? _timer;
   int _currentPage = 0;
   String? _profileImagePath;
+  late TabController _tabController;
 
   // Lista para rastrear o estado de cada botão de desafio
   List<bool> isChallenged = List.generate(5, (index) => false);
@@ -33,6 +34,15 @@ class _FunPageState extends State<FunPage> {
     super.initState();
     _startTimer();
     _loadProfileImage();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProfileImage() async {
@@ -40,13 +50,6 @@ class _FunPageState extends State<FunPage> {
     setState(() {
       _profileImagePath = prefs.getString('profile_image_path');
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _pageController.dispose();
-    super.dispose();
   }
 
   void _startTimer() {
@@ -66,124 +69,145 @@ class _FunPageState extends State<FunPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.all(1.w),
-          children: [
-            _buildAppBar(),
-            SizedBox(height: 21.h),
-            _buildBannerCarousel(), // Banner e indicadores juntos
-            SizedBox(height: 15.h), // Espaço abaixo dos indicadores
-            _buildOnlineStatus(),
-            SizedBox(height: 4.h),
-            _buildUserCarousel(),
-            SizedBox(height: 1.h),
-            _buildRecentGames(),
-            SizedBox(height: 20.h), // Espaço após jogos recentes
-            _buildTournamentsAndEvents(),
-            SizedBox(height: 20.h),
-            _buildAllGamesGrid(),
-            _buildAdAtBottom(), // Anúncio no final da página
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Espaço à esquerda do ícone de pesquisa
-        SizedBox(width: 4.w), // Reduzir o espaço à esquerda
-        InkWell(
-          onTap: () {
-            print("Ícone de pesquisa tocado");
-          },
-          child: Image.asset(
-            'assets/images/pesquisa.png',
-            width: 29.w,
-            height: 30.h,
-          ),
-        ),
-        SizedBox(width: 4.w), // Espaço entre pesquisa e saldo
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(26.r),
-            border: Border.all(color: Colors.green, width: 1),
-          ),
-          child: Row(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
             children: [
-              Image.asset(
-                'assets/icons/moeda.png',
-                width: 24.w,
-                height: 24.h,
-              ),
-              SizedBox(width: 20.w), // Reduzir o espaço entre ícone e texto
-              Text(
-                '\$${widget.userBalance.toStringAsFixed(2)}',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
-              ),
-              SizedBox(width: 20.w), // Reduzir o espaço entre texto e botão de adicionar
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => StorePage(updateBalance: (amount) {})),
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(4.w),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
+              // Linha superior: Pesquisa, saldo, ranking, perfil e troféu
+              _buildTopRow(),
+              // Abas (Sala de Jogos e Vote)
+              Container(
+                padding: EdgeInsets.zero, // Remove o padding lateral
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.black, // Cor preto fosco
+                  unselectedLabelColor: Colors.grey,
+                  labelStyle: TextStyle(
+                    fontWeight: FontWeight.bold, // Texto da aba selecionada em negrito
+                    fontSize: 14.sp, // Tamanho menor
                   ),
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 16.sp,
+                  unselectedLabelStyle: TextStyle(
+                    fontWeight: FontWeight.normal, // Texto da aba não selecionada normal
                   ),
+                  indicator: UnderlineTabIndicator(
+                    borderSide: BorderSide(
+                      width: 4.h, // Espessura da barrinha de seleção
+                      color: Colors.blueGrey, // Cor da barrinha de seleção
+                    ),
+                    insets: EdgeInsets.symmetric(horizontal: 108.w), // Tamanho horizontal da barrinha
+                  ),
+                  tabs: [
+                    Tab(text: 'Sala de Jogos'),
+                    Tab(text: 'Vote'), // Texto alterado para "Vote"
+                  ],
+                ),
+              ),
+              // Conteúdo das abas
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Conteúdo da aba "Sala de Jogos" (página atual)
+                    _buildMainContent(),
+                    // Conteúdo da aba "Vote" (fundo azul claro)
+                    Container(
+                      color: Colors.blue[50], // Fundo azul claro
+                      child: Center(
+                        child: Text(
+                          'Vote',
+                          style: TextStyle(fontSize: 24, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        Row(
-          children: [
-            InkWell(
-              onTap: () {
-                print("Navegando para o ranking");
-              },
-              child: Icon(
-                Icons.bar_chart,
-                size: 30.sp,
-                color: Colors.black54,
-              ),
+      ),
+    );
+  }
+
+  // Linha superior: Pesquisa, saldo, ranking, perfil e troféu
+  Widget _buildTopRow() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Ícone de pesquisa
+          InkWell(
+            onTap: () {
+              print("Ícone de pesquisa tocado");
+            },
+            child: Image.asset(
+              'assets/images/pesquisa.png',
+              width: 29.w,
+              height: 30.h,
             ),
-            SizedBox(width: 8.w), // Reduzir o espaço entre os ícones
-            InkWell(
-              onTap: () {
-                print("Navegando para a página de perfil");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => profile.ProfilePage()),
-                );
-              },
-              child: CircleAvatar(
-                radius: 20.r,
-                backgroundColor: const Color(0xFFE7DFEC),
-                backgroundImage: _profileImagePath != null
-                    ? FileImage(File(_profileImagePath!))
-                    : AssetImage('assets/icons/perfil.png') as ImageProvider,
-              ),
+          ),
+          // Saldo
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h), // Borda mais fechada
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(20.r), // Borda mais arredondada
+              border: Border.all(color: Colors.green, width: 1),
             ),
-            SizedBox(width: 10.w), // Reduzir o espaço entre os ícones
-            Padding(
-              padding: EdgeInsets.only(right: 2.w), // Mover o troféu um pouco para a esquerda
-              child: InkWell(
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/icons/moeda.png',
+                  width: 24.w,
+                  height: 24.h,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  '\$${widget.userBalance.toStringAsFixed(2)}',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+                ),
+                SizedBox(width: 8.w),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StorePage(updateBalance: (amount) {})),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(4.w),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 16.sp,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Ranking, perfil e troféu
+          Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  print("Navegando para o ranking");
+                },
+                child: Icon(
+                  Icons.bar_chart,
+                  size: 30.sp,
+                  color: Colors.black54,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -196,333 +220,452 @@ class _FunPageState extends State<FunPage> {
                   color: Colors.amber,
                 ),
               ),
-            ),
-          ],
-        ),
+              SizedBox(width: 8.w),
+              InkWell(
+                onTap: () {
+                  print("Navegando para a página de perfil");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => profile.ProfilePage()),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 20.r,
+                  backgroundColor: const Color(0xFFE7DFEC),
+                  backgroundImage: _profileImagePath != null
+                      ? FileImage(File(_profileImagePath!))
+                      : AssetImage('assets/icons/perfil.png') as ImageProvider,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Conteúdo principal da página (Sala de Jogos)
+  Widget _buildMainContent() {
+    return ListView(
+      padding: EdgeInsets.zero, // Remove o padding lateral
+      children: [
+        _buildBannerCarousel(),
+        SizedBox(height: 12.h), // Espaço menor entre o banner e o carrossel
+        _buildUserCarousel(),
+        SizedBox(height: 13.h), // Espaço menor entre o carrossel e "Recentes"
+        _buildRecentGames(),
+        SizedBox(height: 20.h),
+        _buildTournamentsAndEvents(),
+        SizedBox(height: 10.h),
+        _buildAllGamesGrid(),
+        _buildAdAtBottom(),
       ],
     );
   }
 
   Widget _buildBannerCarousel() {
-    return Column(
-      children: [
-        Container(
-          height: 100.h,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(0.r),
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (int page) {
-                setState(() {
-                  _currentPage = page;
-                });
-              },
-              children: [
-                Image.asset('assets/jogos/banner1.png', fit: BoxFit.cover),
-                Image.asset('assets/jogos/banner2.png', fit: BoxFit.cover),
-                Image.asset('assets/jogos/banner3.png', fit: BoxFit.cover),
-                Image.asset('assets/jogos/banner4.png', fit: BoxFit.cover),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: 1.h), // Reduzir o espaço entre o banner e as barrinhas
-        _buildPageIndicators(), // Indicadores de página (barrinhas)
-      ],
-    );
-  }
-
-  Widget _buildPageIndicators() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        3,
-            (index) => Container(
-          width: 119.0,
-          height: 4.0,
-          margin: EdgeInsets.symmetric(horizontal: 7.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(1.0),
-            color: _currentPage == index ? Colors.blueGrey : Colors.white70,
-          ),
+    return Container(
+      height: 100.h,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(0.r),
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (int page) {
+            setState(() {
+              _currentPage = page;
+            });
+          },
+          children: [
+            Image.asset('assets/jogos/banner1.png', fit: BoxFit.cover),
+            Image.asset('assets/jogos/banner2.png', fit: BoxFit.cover),
+            Image.asset('assets/jogos/banner3.png', fit: BoxFit.cover),
+            Image.asset('assets/jogos/banner4.png', fit: BoxFit.cover),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildOnlineStatus() {
-    return Row(
-      children: [
-        Icon(
-          Icons.circle,
-          color: Colors.green,
-          size: 11.sp,
-        ),
-        SizedBox(width: 8.w),
-        Text(
-          'Online',
-          style: TextStyle(fontSize: 11.5.sp, color: Colors.black87),
-        ),
-      ],
     );
   }
 
   Widget _buildUserCarousel() {
-    return Container(
-      height: 140.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          String userName;
-          String imagePath;
-          Widget nextPage;
-
-          if (index == 0) {
-            userName = 'Blaey';
-            imagePath = 'assets/icons/app_icon.png';
-            nextPage = BlaeyPage();
-          } else {
-            userName = 'username';
-            imagePath = 'assets/icons/user.png';
-            nextPage = friendProfile.FriendProfilePage(userName);
-          }
-
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => nextPage,
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 28.r,
-                    backgroundImage: AssetImage(imagePath),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  userName,
-                  style: TextStyle(fontSize: 12.sp),
-                ),
-                SizedBox(height: 4.h),
-                ElevatedButton(
-                  onPressed: () {
-                    // Atualiza o estado do botão
-                    setState(() {
-                      isChallenged[index] = true;
-                    });
-                    // Implementar lógica de desafio
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isChallenged[index] ? Colors.black : Colors.blue, // Cor do botão
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  child: Text(
-                    isChallenged[index] ? 'Desafiado' : 'Desafiar', // Texto do botão
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildRecentGames() {
     return Column(
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.timelapse,
-              color: Colors.black12,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              'Recentes',
-              style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black12),
-            ),
-          ],
-        ),
-        SizedBox(height: 7.h),
-        Container(
-          height: 140.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              final recentGames = [
-                {'image': 'assets/jogos/dama.png', 'name': 'Dama'},
-                {'image': 'assets/jogos/xadrez.png', 'name': 'Xadrez'},
-                {'image': 'assets/jogos/ludo.png', 'name': 'Ludo'},
-              ];
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 3.w),
-                child: InkWell(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return FloatingDialog(gameTitle: recentGames[index]['name']!);
-                      },
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        recentGames[index]['image']!,
-                        width: 140.w,
-                        height: 130.w,
-                        fit: BoxFit.contain,
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        recentGames[index]['name']!,
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTournamentsAndEvents() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.event,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              'Torneios e Eventos',
-              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold, color: Colors.black54),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.h),
-        Container(
-          height: 140.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              final events = [
-                'assets/jogos/torneios.png',
-                'assets/jogos/eventos.png',
-                'assets/jogos/maratonas.png',
-              ];
-              return Container(
-                width: 190.w,
-                margin: EdgeInsets.only(right: 16.w),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.r),
-                  child: Image.asset(
-                    events[index],
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAllGamesGrid() {
-    return Column(
-      children: [
-        // Anúncio acima do texto "Todos os Jogos"
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: Colors.deepPurple, // Fundo roxo
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+        // Texto "Online" acima do carrossel
+        Padding(
+          padding: EdgeInsets.only(left: 300.w, bottom: 5.h), // Ajuste o padding conforme necessário
           child: Row(
             children: [
-              Icon(Icons.ads_click, size: 40.r, color: Colors.white),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'ANÚNCIO',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Confira nossas promoções exclusivas!',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                    ),
-                  ],
+              Text(
+                'Online',
+                style: TextStyle(
+                  fontSize: 10.sp, // Tamanho pequeno
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // Ação ao clicar no anúncio
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                ),
-                child: Text(
-                  'Saiba Mais',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.deepPurple),
+              SizedBox(width: 4.w),
+              Container(
+                width: 8.w,
+                height: 8.h,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  shape: BoxShape.circle,
                 ),
               ),
             ],
           ),
         ),
-        // Texto "Todos os Jogos"
-        Row(
-          children: [
-            Icon(
-              Icons.games_rounded,
-              color: Colors.amber,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              'Todos os Jogos',
-              style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold),
-            ),
-          ],
+        // Carrossel de usuários
+        Container(
+          height: 140.h, // Ajuste para evitar overflow
+          padding: EdgeInsets.only(left: 10.w), // Carrossel mais à direita
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              String userName;
+              String imagePath;
+              Widget nextPage;
+
+              if (index == 0) {
+                userName = 'Blaey';
+                imagePath = 'assets/icons/app_icon.png';
+                nextPage = BlaeyPage();
+              } else {
+                userName = 'username';
+                imagePath = 'assets/icons/user.png';
+                nextPage = friendProfile.FriendProfilePage(userName);
+              }
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: Column(
+                  children: [
+                    // Bloco "Blaey" (sem "Online")
+                    if (index == 0)
+                      Container(
+                        padding: EdgeInsets.all(12.w), // Espaçamento interno maior
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.4), // Fundo branco 40% transparente
+                          borderRadius: BorderRadius.circular(20.r), // Bordas mais arredondadas
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1), // Sombra discreta
+                              blurRadius: 6.r,
+                              offset: Offset(0, 3.h),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Círculo do usuário
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => nextPage,
+                                  ),
+                                );
+                              },
+                              child: CircleAvatar(
+                                radius: 28.r,
+                                backgroundImage: AssetImage(imagePath),
+                              ),
+                            ),
+                            SizedBox(height: 6.h), // Espaçamento menor
+                            // Nome do usuário
+                            Text(
+                              userName,
+                              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 6.h), // Espaçamento menor
+                            // Botão "Web3.0" com estilo moderno e borda tecnológica
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  isChallenged[index] = true;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isChallenged[index] ? Colors.grey[800] : Colors.blueGrey, // Cor preta
+                                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h), // Botão mais largo
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.r), // Bordas arredondadas
+                                  side: BorderSide(
+                                    color: Colors.blueGrey, // Borda tecnológica
+                                    width: 2.w,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                isChallenged[index] ? 'Web3.0' : 'Web3.0', // Texto do botão
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    // Outros usuários (com "Online" apenas para "username")
+                    if (index != 0)
+                      Container(
+                        padding: EdgeInsets.all(2.w), // Espaçamento menor
+                        child: Column(
+                          children: [
+                            // Stack para o texto "Online" e o círculo do usuário
+                            Stack(
+                              alignment: Alignment.topCenter,
+                              children: [
+                                // Círculo do usuário
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => nextPage,
+                                      ),
+                                    );
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 28.r,
+                                    backgroundImage: AssetImage(imagePath),
+                                  ),
+                                ),
+                                // Texto "Online" (apenas para "username")
+                                if (imagePath == 'assets/icons/user.png')
+                                  Positioned(
+                                    top: -10.h, // Ajuste a posição vertical do texto
+                                    child: Text(
+                                      'Online',
+                                      style: TextStyle(
+                                        fontSize: 10.sp,
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(height: 4.h), // Espaçamento menor
+                            // Nome do usuário
+                            Text(
+                              userName,
+                              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Texto em negrito
+                            ),
+                            SizedBox(height: 4.h), // Espaçamento menor
+                            // Botão "Desafiar" para outros usuários
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  isChallenged[index] = true;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isChallenged[index] ? Colors.black : Colors.blue,
+                                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                              ),
+                              child: Text(
+                                isChallenged[index] ? 'Desafiado' : 'Desafiar',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-        SizedBox(height: 10.h),
+      ],
+    );
+  }
+
+  Widget _buildRecentGames() {
+    return Padding(
+      padding: EdgeInsets.only(left: 16.w), // Alinha à esquerda
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.timelapse,
+                color: Colors.black,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'Recentes',
+                style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ],
+          ),
+          SizedBox(height: 7.h),
+          Container(
+            height: 145.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                final recentGames = [
+                  {'image': 'assets/jogos/dama.png', 'name': 'Dama'},
+                  {'image': 'assets/jogos/xadrez.png', 'name': 'Xadrez'},
+                  {'image': 'assets/jogos/ludo.png', 'name': 'Ludo'},
+                ];
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 3.w),
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return FloatingDialog(gameTitle: recentGames[index]['name']!);
+                        },
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          recentGames[index]['image']!,
+                          width: 140.w,
+                          height: 130.w,
+                          fit: BoxFit.contain,
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          recentGames[index]['name']!,
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold), // Texto em negrito
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTournamentsAndEvents() {
+    return Padding(
+      padding: EdgeInsets.only(left: 16.w), // Alinha à esquerda
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.event,
+                color: Colors.black,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Torneios e Eventos',
+                style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ],
+          ),
+          SizedBox(height: 6.h),
+          Container(
+            height: 180.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                final events = [
+                  'assets/jogos/torneios.png',
+                  'assets/jogos/eventos.png',
+                  'assets/jogos/maratonas.png',
+                ];
+                return Container(
+                  width: 240.w,
+                  margin: EdgeInsets.only(right: 6.w),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9.r),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(9.r),
+                    child: Image.asset(
+                      events[index],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllGamesGrid() {
+    return Padding(
+      padding: EdgeInsets.only(left: 16.w), // Alinha à esquerda
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.all_inclusive, // Ícone de "All"
+                color: Colors.black,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                'Todos os Jogos',
+                style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          // Categorias de Jogos
+          _buildGameCategory('Jogos VS', Icons.sports_esports, [
+            {'name': 'Dama', 'image': 'assets/jogos/dama.png'},
+            {'name': 'Xadrez', 'image': 'assets/jogos/xadrez.png'},
+          ]),
+          _buildGameCategory('Jogos em Grupo', Icons.group, [
+            {'name': 'Ludo', 'image': 'assets/jogos/ludo.png'},
+            {'name': 'Truco', 'image': 'assets/jogos/truco.png'},
+          ]),
+          _buildGameCategory('Jogos 2 vs 2', Icons.people, [
+            {'name': 'Jogo da Velha', 'image': 'assets/jogos/jogo_da_velha.png'},
+            {'name': 'Outro Jogo', 'image': 'assets/jogos/dama.png'},
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameCategory(String categoryName, IconData icon, List<Map<String, String>> games) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 8.w, top: 10.h),
+          child: Row(
+            children: [
+              Icon(
+                icon, // Ícone relacionado à categoria
+                color: Colors.black,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                categoryName,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
         GridView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
@@ -532,50 +675,12 @@ class _FunPageState extends State<FunPage> {
             mainAxisSpacing: 6.h,
             childAspectRatio: 0.8,
           ),
-          itemCount: 7, // 6 jogos + 1 anúncio
+          itemCount: games.length,
           itemBuilder: (context, index) {
-            if (index == 3) { // Anúncio na posição 3
-              return _buildAdInGamesGrid();
-            } else {
-              final games = [
-                {'name': 'Dama', 'image': 'assets/jogos/dama.png'},
-                {'name': 'Xadrez', 'image': 'assets/jogos/xadrez.png'},
-                {'name': 'Ludo', 'image': 'assets/jogos/ludo.png'},
-                {'name': 'Truco', 'image': 'assets/jogos/truco.png'},
-                {'name': 'Jogo da Velha', 'image': 'assets/jogos/jogo_da_velha.png'},
-                {'name': 'Outro Jogo', 'image': 'assets/jogos/dama.png'},
-              ];
-              return _buildGameItem(games[index]['name']!, games[index]['image']!);
-            }
+            return _buildGameItem(games[index]['name']!, games[index]['image']!);
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildAdInGamesGrid() {
-    return InkWell(
-      onTap: () {
-        // Ação ao clicar no anúncio
-      },
-      child: Column(
-        children: [
-          Container(
-            width: 100.w,
-            height: 100.h,
-            decoration: BoxDecoration(
-              color: Colors.deepPurple,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(Icons.ads_click, size: 40.r, color: Colors.white),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Anúncio',
-            style: TextStyle(fontSize: 14.sp),
-          ),
-        ],
-      ),
     );
   }
 
@@ -600,7 +705,7 @@ class _FunPageState extends State<FunPage> {
           SizedBox(height: 8.h),
           Text(
             name,
-            style: TextStyle(fontSize: 14.sp),
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold), // Texto em negrito
           ),
         ],
       ),
@@ -614,7 +719,7 @@ class _FunPageState extends State<FunPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         image: DecorationImage(
-          image: AssetImage('assets/jogos/banner_ad2.png'), // Imagem de fundo
+          image: AssetImage('assets/jogos/banner_ad2.png'),
           fit: BoxFit.cover,
         ),
       ),

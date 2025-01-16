@@ -5,6 +5,8 @@ import '../profile_page.dart';
 import 'chat_page.dart';
 import 'chat_secundario_page.dart';
 import 'notas_page.dart';
+import 'friends_list_page.dart'; // Importação da página de lista de amigos
+import 'find_friends_page.dart'; // Importação da página de encontrar amigos
 
 class MessagesPage extends StatefulWidget {
   @override
@@ -13,7 +15,7 @@ class MessagesPage extends StatefulWidget {
 
 class _MessagesPageState extends State<MessagesPage> {
   String? _profileImagePath;
-  final String userPhotoUrl = "assets/icons/perfil.png"; // Use a imagem do perfil correta
+  final String userPhotoUrl = "assets/icons/perfil.png";
 
   final List<Map<String, String>> messages = [
     {'sender': 'Alice', 'message': 'Oi, como você está?', 'time': '10:00 AM'},
@@ -24,7 +26,7 @@ class _MessagesPageState extends State<MessagesPage> {
   ];
 
   final List<Map<String, dynamic>> stories = [
-    {'user': 'Atualize', 'image': 'assets/icons/plus.png'},
+    {'user': 'Atualizar', 'image': 'assets/icons/perfil.png'}, // Imagem inicial
     {'user': 'Alice', 'image': 'assets/icons/user.png'},
     {'user': 'Bob', 'image': 'assets/icons/user.png'},
     {'user': 'Charlie', 'image': 'assets/icons/user.png'},
@@ -58,10 +60,11 @@ class _MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Fundo padrão
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70.0),
         child: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.white, // Mesma cor do fundo
           title: Row(
             children: [
               CircleAvatar(
@@ -99,7 +102,7 @@ class _MessagesPageState extends State<MessagesPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
+                ).then((_) => _loadProfileImage()); // Recarrega a imagem ao voltar
               },
               child: CircleAvatar(
                 radius: 22,
@@ -109,52 +112,12 @@ class _MessagesPageState extends State<MessagesPage> {
               ),
             ),
             SizedBox(width: 8),
-            Container(
-              margin: EdgeInsets.only(right: 16),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey[200],
-                border: Border.all(color: Colors.black, width: 0.5),
-              ),
-              child: IconButton(
-                icon: Icon(Icons.add, color: Colors.black, size: 20),
-                onPressed: () {
-                  // Adicione aqui a ação desejada para o botão de adicionar
-                },
-                padding: EdgeInsets.all(8),
-              ),
-            ), // Added missing closing parenthesis here
           ],
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Barra de pesquisa
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Pesquisar...',
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: Image.asset('assets/images/pesquisa.png'),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(28.0),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                fillColor: Colors.grey[200],
-              ),
-              style: TextStyle(fontSize: 14),
-            ),
-          ),
           // Carrossel de Stories
           Container(
             height: 120,
@@ -163,6 +126,7 @@ class _MessagesPageState extends State<MessagesPage> {
               scrollDirection: Axis.horizontal,
               itemCount: stories.length,
               itemBuilder: (context, index) {
+                final isUpdateStory = stories[index]['user'] == 'Atualizar';
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                   child: Column(
@@ -170,7 +134,7 @@ class _MessagesPageState extends State<MessagesPage> {
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: stories[index]['user'] == 'Atualize'
+                          gradient: isUpdateStory
                               ? null
                               : LinearGradient(
                             colors: [Colors.green, Colors.lightGreenAccent],
@@ -185,13 +149,27 @@ class _MessagesPageState extends State<MessagesPage> {
                             color: Colors.white,
                           ),
                           padding: const EdgeInsets.all(2.0),
-                          child: CircleAvatar(
-                            radius: 35,
-                            backgroundColor: Colors.grey[300],
-                            backgroundImage: AssetImage(stories[index]['image']),
-                            child: stories[index]['user'] == 'Atualize'
-                                ? Icon(Icons.add, color: Colors.black, size: 30)
-                                : null,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              CircleAvatar(
+                                radius: 35,
+                                backgroundColor: Colors.grey[300],
+                                backgroundImage: isUpdateStory
+                                    ? _profileImagePath != null
+                                    ? FileImage(File(_profileImagePath!))
+                                    : AssetImage(userPhotoUrl) as ImageProvider
+                                    : AssetImage(stories[index]['image']),
+                              ),
+                              if (isUpdateStory)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                  ),
+                                  child: Icon(Icons.add_circle, color: Colors.green, size: 24),
+                                ),
+                            ],
                           ),
                         ),
                       ),
@@ -204,6 +182,40 @@ class _MessagesPageState extends State<MessagesPage> {
                   ),
                 );
               },
+            ),
+          ),
+          // Barra de pesquisa
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FindFriendsPage()),
+                );
+              },
+              child: TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  hintText: 'Pesquisar...',
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: Image.asset('assets/images/pesquisa.png'),
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                  fillColor: Colors.grey[200],
+                ),
+                style: TextStyle(fontSize: 14),
+              ),
             ),
           ),
           // Texto "Conversas" com ícone de chat
@@ -287,7 +299,16 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         ],
       ),
-      // Removido o FloatingActionButton
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FriendsListPage()),
+          );
+        },
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.green,
+      ),
     );
   }
 }
