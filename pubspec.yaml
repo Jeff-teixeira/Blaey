@@ -93,6 +93,7 @@ flutter:
     - assets/images/pesquisa.png
     - assets/icons/logoblaey.png
     - assets/icons/user.png
+    - assets/icons/Google_icon.png
     - assets/icons/moeda.png
     - assets/animations/level_up.riv
     - assets/images/opponent_photo.png

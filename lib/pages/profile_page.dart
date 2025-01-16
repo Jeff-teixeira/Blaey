@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Adicione o Firebase Auth
 import 'dart:io';
 
 class ProfilePage extends StatefulWidget {
@@ -11,7 +12,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String? _imagePath;
   String userName = "Jeff";
-  String userHandle = "@jeff123rtr"; // Nome de usuário para a AppBar
+  String userHandle = "@jeff123rtr";
   String bio = "Apaixonado por tecnologia e jogos! 🎮";
   int numPublications = 42;
   int numFriends = 120;
@@ -20,143 +21,349 @@ class _ProfilePageState extends State<ProfilePage> {
   bool showFriends = false;
   bool showTrophies = false;
 
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Instância do Firebase Auth
+
   @override
   void initState() {
     super.initState();
     _loadProfileData();
-  _loadProfileImage();
-}
-
-Future<void> _loadProfileData() async {
-  final prefs = await SharedPreferences.getInstance();
-  setState(() {
-    userName = prefs.getString('userName') ?? "Jeff";
-    userHandle = prefs.getString('userHandle') ?? "@jeff123rtr"; // Carrega o nome de usuário
-    bio = prefs.getString('bio') ?? "Apaixonado por tecnologia e jogos! 🎮";
-  });
-}
-
-Future<void> _loadProfileImage() async {
-  final prefs = await SharedPreferences.getInstance();
-  setState(() {
-    _imagePath = prefs.getString('profile_image_path');
-  });
-}
-
-Future<void> _saveProfileData() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('userName', userName);
-  await prefs.setString('userHandle', userHandle);
-  await prefs.setString('bio', bio);
-}
-
-Future<void> _saveProfileImage(String path) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('profile_image_path', path);
-  setState(() {
-    _imagePath = path;
-  });
-}
-
-Future<void> _pickImage() async {
-  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) {
-    setState(() {
-      _imagePath = pickedFile.path;
-    });
-    await _saveProfileImage(pickedFile.path);
+    _loadProfileImage();
   }
-}
 
-Future<void> _takePhoto() async {
-  final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-  if (pickedFile != null) {
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _imagePath = pickedFile.path;
+      userName = prefs.getString('userName') ?? "Jeff";
+      userHandle = prefs.getString('userHandle') ?? "@jeff123rtr";
+      bio = prefs.getString('bio') ?? "Apaixonado por tecnologia e jogos! 🎮";
     });
-    await _saveProfileImage(pickedFile.path);
   }
-}
 
-Future<void> _showImagePickerOptions() async {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Escolher da Galeria'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _pickImage();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Tirar uma Foto'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _takePhoto();
-              },
-            ),
-          ],
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _imagePath = prefs.getString('profile_image_path');
+    });
+  }
+
+  Future<void> _saveProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userName);
+    await prefs.setString('userHandle', userHandle);
+    await prefs.setString('bio', bio);
+  }
+
+  Future<void> _saveProfileImage(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_image_path', path);
+    setState(() {
+      _imagePath = path;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+      await _saveProfileImage(pickedFile.path);
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+      await _saveProfileImage(pickedFile.path);
+    }
+  }
+
+  Future<void> _showImagePickerOptions() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Escolher da Galeria'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImage();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Tirar uma Foto'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _takePhoto();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _editProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(
+          userName: userName,
+          userHandle: userHandle,
+          bio: bio,
+          onSave: (newName, newHandle, newBio) {
+            setState(() {
+              userName = newName;
+              userHandle = newHandle;
+              bio = newBio;
+            });
+            _saveProfileData();
+          },
         ),
-      );
-    },
-  );
-}
-
-void _editProfile() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => EditProfilePage(
-        userName: userName,
-        userHandle: userHandle,
-        bio: bio,
-        onSave: (newName, newHandle, newBio) {
-          setState(() {
-            userName = newName;
-            userHandle = newHandle;
-            bio = newBio;
-          });
-          _saveProfileData();
-        },
       ),
-    ),
-  );
-}
+    );
+  }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(userHandle), // Nome de usuário na AppBar
-    ),
-    body: SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: 20),
-          // Foto de Perfil e Informações do Usuário
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  // Funções para as opções do menu
+  Future<void> _logout() async {
+    await _auth.signOut();
+    Navigator.pushReplacementNamed(context, '/login'); // Redireciona para a página de login
+  }
+
+  Future<void> _changeEmail() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          final TextEditingController _newEmailController = TextEditingController();
+          return AlertDialog(
+            title: Text('Alterar Email'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Foto de Perfil
-                GestureDetector(
-                  onTap: _showImagePickerOptions,
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: _imagePath != null
-                            ? FileImage(File(_imagePath!))
-                            : AssetImage('assets/icons/perfil.png') as ImageProvider,
+                Text('Email atual: ${user.email}'),
+                TextField(
+                  controller: _newEmailController,
+                  decoration: InputDecoration(labelText: 'Novo Email'),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await user.updateEmail(_newEmailController.text);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Email atualizado com sucesso!')),
+                    );
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao atualizar email: $e')),
+                    );
+                  }
+                },
+                child: Text('Salvar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          final TextEditingController _newPasswordController = TextEditingController();
+          return AlertDialog(
+            title: Text('Alterar Senha'),
+            content: TextField(
+              controller: _newPasswordController,
+              decoration: InputDecoration(labelText: 'Nova Senha'),
+              obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await user.updatePassword(_newPasswordController.text);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Senha atualizada com sucesso!')),
+                    );
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao atualizar senha: $e')),
+                    );
+                  }
+                },
+                child: Text('Salvar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Excluir Conta'),
+            content: Text('Tem certeza de que deseja excluir sua conta permanentemente?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await user.delete();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Conta excluída com sucesso!')),
+                    );
+                    Navigator.pushReplacementNamed(context, '/login');
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao excluir conta: $e')),
+                    );
+                  }
+                },
+                child: Text('Excluir'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _showTermsAndPrivacy() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: Text('Termos de Uso e Privacidade')),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Text(
+                'Termos de Uso e Política de Privacidade\n\n'
+                    '1. Respeito à privacidade do usuário.\n'
+                    '2. Dados serão utilizados apenas para melhorar a experiência do usuário.\n'
+                    '3. Não compartilhamos seus dados com terceiros.\n'
+                    '4. O usuário pode excluir sua conta a qualquer momento.\n',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(userHandle),
+        actions: [
+          // Botão de três pontinhos para acessar as opções
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              switch (value) {
+                case 'change_email':
+                  _changeEmail();
+                  break;
+                case 'change_password':
+                  _changePassword();
+                  break;
+                case 'delete_account':
+                  _deleteAccount();
+                  break;
+                case 'terms':
+                  _showTermsAndPrivacy();
+                  break;
+                case 'logout':
+                  _logout();
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: 'change_email',
+                  child: Text('Alterar Email'),
+                ),
+                PopupMenuItem(
+                  value: 'change_password',
+                  child: Text('Alterar Senha'),
+                ),
+                PopupMenuItem(
+                  value: 'delete_account',
+                  child: Text('Excluir Conta'),
+                ),
+                PopupMenuItem(
+                  value: 'terms',
+                  child: Text('Termos de Uso e Privacidade'),
+                ),
+                PopupMenuItem(
+                  value: 'logout',
+                  child: Text('Sair da Conta'),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            // Foto de Perfil e Informações do Usuário
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Foto de Perfil
+                  GestureDetector(
+                    onTap: _showImagePickerOptions,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: _imagePath != null
+                              ? FileImage(File(_imagePath!))
+                              : AssetImage('assets/icons/perfil.png') as ImageProvider,
                         ),
                         Container(
                           padding: EdgeInsets.all(4),
