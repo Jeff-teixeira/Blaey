@@ -8,7 +8,7 @@ import 'trophies_page.dart';
 import 'friend_profile_page.dart' as friendProfile;
 import 'store_page.dart';
 import 'blaey_page.dart';
-import 'floating_dialog.dart';
+import 'floating_game_options.dart'; // Importação corrigida
 
 class FunPage extends StatefulWidget {
   final double userBalance;
@@ -528,7 +528,10 @@ class _FunPageState extends State<FunPage> with SingleTickerProviderStateMixin {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return FloatingDialog(gameTitle: recentGames[index]['name']!);
+                          return FloatingGameOptions(
+                            gameTitle: recentGames[index]['name']!,
+                            gameImagePath: recentGames[index]['image']!,
+                          );
                         },
                       );
                     },
@@ -690,7 +693,10 @@ class _FunPageState extends State<FunPage> with SingleTickerProviderStateMixin {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return FloatingDialog(gameTitle: name);
+            return FloatingGameOptions(
+              gameTitle: name,
+              gameImagePath: imagePath,
+            );
           },
         );
       },

@@ -145,14 +145,14 @@ class _WaitingDiretoPageState extends State<WaitingDiretoPage> with TickerProvid
     }
 
     return Scaffold(
-      backgroundColor: Colors.black, // Fundo preto mais escuro
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
           widget.gameTitle,
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold, // Negrito
+            fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
